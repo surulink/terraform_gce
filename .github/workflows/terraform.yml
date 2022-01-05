@@ -99,6 +99,11 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
+      
+    - name: Providers Lock
+      run: terraform providers lock
+      env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CRED }}
 
     - name: 'Terraform plan'
       run: terraform plan -out tfplan -lock=false
