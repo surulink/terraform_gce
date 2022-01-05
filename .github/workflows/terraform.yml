@@ -119,7 +119,7 @@ jobs:
       run: terraform apply -auto-approve -lock=false
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CRED }}
-
+   # slack notification to the channel based on plan or apply
   slack_notification:
     name: 'Slack Notification'
     runs-on: ubuntu-latest
