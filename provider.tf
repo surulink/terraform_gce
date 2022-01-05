@@ -1,6 +1,5 @@
-# Specify the provider (GCP, AWS, Azure)
+# Specify the provider
 provider "google" {
-credentials = "${file("credentials.json")}"
-project = "ac-shared-playground"
+project = "my-project-64131-terraform"
 region = "us-central1"
 }
