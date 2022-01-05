@@ -51,8 +51,9 @@ on:
   pull_request:
 
 jobs:
-  terraform_initialize:
-    name: 'Terraform'
+  # Setup terraform, initialize plugin and Generates an execution plan on github runners
+  terraform_initialize_plan:
+    name: 'Terraform_plan'
     runs-on: ubuntu-latest
     environment: production
 
@@ -65,7 +66,7 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
-
+      
     # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
@@ -83,40 +84,20 @@ jobs:
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
       run: terraform fmt -check
-
-   # Generates an execution plan for Terraform
-  terraform_plan:
-    name: 'Terraform_plan'
-    runs-on: ubuntu-latest
-    environment: production
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
-      
-    - name: Providers Lock
-      run: terraform providers lock
-      env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CRED }}
+    
 
     - name: 'Terraform plan'
       run: terraform plan -out tfplan -lock=false
       env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CRED }}
 
-      # On push to master, build or change infrastructure according to Terraform configuration files
-      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
-   # Generates an execution plan for Terraform
+   # On push to master, build or change infrastructure according to Terraform configuration files
+   # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+
   terraform_apply:
     name: 'Terraform_apply'
     runs-on: ubuntu-latest
-    needs: terraform_plan
+    needs: terraform_initialize_plan
     environment: production
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -138,7 +119,7 @@ jobs:
   slack_notification:
     name: 'Slack Notification'
     runs-on: ubuntu-latest
-    needs: [terraform_plan, terraform_apply]
+    needs: [terraform_initialize_plan, terraform_apply]
     if: always()
 
     steps:
@@ -160,7 +141,7 @@ jobs:
       if: github.ref != 'refs/heads/main' && github.event_name == 'push'
       env:
         SLACK_CHANNEL: terraform-approval
-        SLACK_COLOR: ${{ needs.terraform_plan.result }}
+        SLACK_COLOR: ${{ needs.terraform_initialize_plan.result }}
         SLACK_TITLE: ${{ github.repository }}
         SLACK_MESSAGE: ${{ github.event.head_commit.message }}
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
