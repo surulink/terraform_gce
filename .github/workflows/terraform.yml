@@ -54,9 +54,9 @@ on:
 jobs:
   # Setup terraform, initialize plugin and Generates an execution plan on github runners
   terraform_initialize_plan:
-    name: 'Terraform_plan'
+    name: Terraform_plan
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
     
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -87,9 +87,8 @@ jobs:
     - name: Terraform Format
       run: terraform fmt -check
     
-    
-    - name: 'Terraform plan'
-      run: terraform plan -no-color -lock=false
+    - name: Terraform plan
+      run: terraform plan -out tf_plan -no-color -lock=false
       env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CRED }}
 
@@ -97,9 +96,9 @@ jobs:
    # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
 
   terraform_apply:
-    name: 'Terraform_apply'
+    name: Terraform_apply
     runs-on: ubuntu-latest
-    needs: terraform_initialize_plan
+    # needs: terraform_initialize_plan
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     environment: 
       name: production
@@ -119,7 +118,7 @@ jobs:
       run: terraform init
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -lock=false
+      run: terraform apply tf_plan -auto-approve -lock=false
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CRED }}
   
