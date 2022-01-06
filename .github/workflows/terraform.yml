@@ -87,7 +87,7 @@ jobs:
     - name: Terraform Format
       run: terraform fmt -check
     
-
+    
     - name: 'Terraform plan'
       run: terraform plan -out tfplan -no-color -lock=false
       env:
@@ -124,6 +124,7 @@ jobs:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CRED }}
   
     # slack notification to the channel based on plan or apply
+  
   slack_notification:
     name: 'Slack Notification'
     runs-on: ubuntu-latest
