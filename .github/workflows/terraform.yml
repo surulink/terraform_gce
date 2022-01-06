@@ -56,7 +56,7 @@ jobs:
   terraform_initialize_plan:
     name: 'Terraform_plan'
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name != 'pull_request'
+    if: github.event_name == 'pull_request'
     
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
@@ -89,7 +89,7 @@ jobs:
     
 
     - name: 'Terraform plan'
-      run: terraform plan -out tfplan -lock=false
+      run: terraform plan -out tfplan -no-color -lock=false
       env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CRED }}
 
