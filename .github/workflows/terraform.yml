@@ -37,6 +37,7 @@
 #
 # 3. Reference the GitHub secret in step using the `hashicorp/setup-terraform` GitHub Action.
 #   Example:
+#   Example:
 #     - name: Setup Terraform
 #       uses: hashicorp/setup-terraform@v1
 #       with:
